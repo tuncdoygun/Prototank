@@ -1,0 +1,91 @@
+Summary
+UPDATE 9/1/2021 - The rear hatch for the tank is intended to be held on with magnets. Unfortunately, I've run into issues where vibrations will cause the hatch to vibrate downward on the magnets, and eventually fall off. To fix that, I've added a new very simple part: TheBackFellOffItsNotSupposedToDoThat.stl.
+Just print it and glue it onto the aft bottom of the tank hull. I've attached a pic so you can see where it goes. Elon Musk says, "the best part is no part." Well... If you don't add this the back will fall off, and then you'll be less one part... so, I'm compliant, right?
+
+UPDATE 3/8/2019 - I've just published a lighting/illumination kit for this tank. It can be found at: https://www.thingiverse.com/thing:3479053
+
+Also, a very common question that I get is "where are the files for the tank tracks and cogs?" You can find them here: https://www.thingiverse.com/thing:972768/files
+
+You need:
+
+ProtoTank_Cog.stl (qty 6)
+ProtoTank_trackinnerFrame.stl (qty 2)
+ProtoTank_TrackOuterFrame.stl (qty 2)
+
+You'll see a bunch of different track segment files, labeled Track_X_Y.stl. The X_Y represent the radius of the pin hole. So Track_1_5.stl has a 1.5mm radius pin hole. This is important because 3D printers print with varying levels of accuracy. You'll want to experiment to determine which size works best for your printer to ensure a nice snug (but not too snug) pin fit. Fortunately, those segments take hardly anytime at all to print, so experimenting with them does not take very long.
+
+OVERALL FPV PROTO TANK DESCRIPTION:
+This thing uses the tracks, cogs, and associated motor mount frame from the ProtoTank by timmiclark. What this adds to timmiclark's design is an entirely new enclosed hull and turret with pan/tilt motion. It also features a removable battery cover, held onto the rear of the hull with magnets. Please see timmiclark's original post for the ProtoTank to obtain those files and information regarding motors and how to print/assemble the tracks.
+
+The turret is designed for the Runcam Owl or equivalent FPV cameras with the same mounting interfaces.
+
+The aft body shell has a small "chimney" to mount the AKK X1 5.8 Ghz Transmitter.
+
+There are standoffs/mounts on the underside of the forward body shell to mount a FrSky XSR or D4R-ii 2.4 Gz Rx.
+
+For power distribution, I just re-used an old power distribution board from a ZMR180 quadcopter that I had laying around.
+
+For power, I am using a Turnigy nano-tech 1300mah 2S 25~50C Lipo Pack. Run times and performance have been excellent with this, and it fits nicely in the hull.
+
+All hardware is M3. Recommend purchasing an assortment of M3 screws with nuts and washers.
+
+The turret uses two servos. 1 for yaw, 1 for pitch. I used: ElectroBot 2X Pcs Sg90 Micro Servo Motor 9G Rc Robot Helicopter Airplane Boat Controls. You will have to trim the tips of the control horns to get the right fit.
+
+Note: Some of the component-level photos shown here are "version 1" components, but I posted them for assembly help where design changes did not impact how parts fit together.
+
+"What's the difference between TurretPitchTableV3.stl and TurretPitchTableV4.stl?" - TurretPitchTableV4 is 1mm thicker in the front right corner, where the control horn for the servo is "clamped". This was added to get rid of the "jiggle" on the pitch axis that you can see in my video. The source FreeCad file was also uploaded, so you can change to suit your servo/control horn. The extrusion you'll want to edit is Pad003, which is extruded from sketch, "AntiPitchJiggleExtrusion". Of course, you could also just wrap tape around your control horn to make it fatter too. Likewise, "PitchHornDownRestraintV2.stl" is also intended to provide a tighter "clamp" on the turret pitch servo control horn.
+
+PARTS PARTS PARTS!!!! - These are all from Amazon (US), and I've copy/pasted the exact item descriptions so you can easily search for them.
+-Black PLA: HATCHBOX PLA 3D Printer Filament, Dimensional Accuracy +/- 0.03 mm, 1 kg Spool, 1.75 mm, Black
+
+-Gray PLA: HATCHBOX PLA 3D Printer Filament, Dimensional Accuracy +/- 0.03 mm, 1 kg Spool, 1.75 mm, Gray
+
+-Qty 4 Motors: Doradus 5Pcs DC 3V-6V Dual Axis Gear Reducer Motor For Arduino Smart Car (source: Amazon)
+
+-Qty 2 ESCs: Hobbypower RC 20A ESC Brushed Motor Speed Controller for RC Car Boat W/O Brake. Each side of the tank gets one ESC. Wire the motors to the ESC in parallel. Recommend you test your wiring before assembling the tank, itself to ensure you got the motor polarity correct so the the motors turn in the correction direction.
+
+-Qty 2 Servos: ElectroBot 2X Pcs Sg90 Micro Servo Motor 9G Rc Robot Helicopter Airplane Boat Controls
+
+-Qty 3 Bag Pins to Hold Tracks Together: uxcell Replacement Stainless Steel Round Rod 35mmx2mm 30Pcs for RC Car Mode
+
+-Misc. M3 Hardware 1: iexcell 125 Pcs M3 x 20mm/25mm/30mm/35mm Internal Hex Drives Socket Cap Head Hex Socket Screws and Nuts Kit, Stainless Steel 304
+
+-Misc. M3 Hardware 2: M3 Stainless Steel Hex Socket Head Cap Screws Nuts Assortment Kit, Allen Wrench Drive, Precise Metric Bolts and Nuts Set with Beautiful Assortment Tool Box for 3D printed project, 310 Pcs (Silver)
+
+-1 Bag M3 Washers: M3x6mmx0.5mm Stainless Steel Round Flat Washer for Bolt Screw 100Pcs
+
+-Camera: I used a Runcam Owl Plus that was salvaged from a ZMR250 build. It's an older camera, but you should be able to find it or similar cameras elsewhere online. I believe many of the Runcam FPV cams (and similar off brands) have the same case/mounting interface.
+
+-Qty 1 VTX: AKK X1 5.8G 25mW/200mW/600mW Switchable FPV Transmitter with Push Button and Digital Display
+
+-Qty1 2.4 Gz Rx: Pick whatever is compatible with your transmitter, of course. I'm a FrSky Taranis user, so I just used a FrSky D4R-ii that I pulled off of a quadcopter.
+
+-Power Distribution - Eh, you can wire up a harness (pain in the butt), or just go grab a small, simple quadcopter PDB. It doesn't need anything fancy.
+
+-You'll also need wire, solder, tweezers, soldering iron... you know... all of the basics for working with hobby electronics.
+
+Print Settings
+Printer:
+Anet A8
+
+
+Rafts:
+Doesn't Matter
+
+Supports:
+Yes
+
+Resolution:
+Varies
+
+Infill:
+20%
+
+Notes:
+The main hull (the box) can be printed at 0.4mm resolution since it's covered up by the top body shells anyway. This will save you time. Also, recommend not printing anything with slopes at less than 1.5mm, or you'll get too much of a "step" look on those surfaces.
+
+Narf!
+
+
+How I Designed This
+This thing was designed in FreeCAD. I'm new to FreeCAD, so please go easy on me with my design practices :)

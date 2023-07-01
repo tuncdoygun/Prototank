@@ -1,0 +1,16 @@
+Elektronikte yapılacak bir iş kalmadı.
+Belki dc motor için hız ayarlamaları, servo için sınır ayarının yapılması.
+
+
+Kalan işler:
+Tank
+- Elektronik parçaların yerleştirilmesi. +++
+- Üst kısımda kalan 3D parçaların basılması. +++
+- Motor sürücü için eksta yapılacak tasarım ve tankın altına yerleştirilmesi. +++
+- Pil arka kapağının üzerinde açma kapama butonu bulunduracak şekilde yeniden tasarlanıp basılması.
+
+Kumanda
+- PCB kart yerleşim
+- Kumanda 3D tasarımın belirlenip basılması
+- PCB'nin tasarıma yerleştirilmesi
+- Telefon tutacağının tasarımının belirlenmesi
