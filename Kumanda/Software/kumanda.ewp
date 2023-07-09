@@ -316,7 +316,7 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\inc</state>
+          <state>$PROJ_DIR$\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1949,22 +1949,22 @@
   <group>
     <name>Peripheral</name>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\misc.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\misc.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_adc.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_adc.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_gpio.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_gpio.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rcc.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_rcc.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_usart.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_usart.c</name>
     </file>
   </group>
   <file>

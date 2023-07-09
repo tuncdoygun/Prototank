@@ -37,6 +37,9 @@ void init(void)
   IO_Write(IOP_LED, 1);
   IO_Init(IOP_LED, IO_MODE_OUTPUT);
   
+  IO_Write(IOP_LED_RED, 1);
+  IO_Init(IOP_LED_RED, IO_MODE_OUTPUT);
+  
   // Joystick button baslangic
   BTN_InitButtons();
   

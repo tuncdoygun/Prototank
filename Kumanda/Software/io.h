@@ -35,6 +35,7 @@ typedef struct {
 
 enum {
   IOP_LED,              // Blue pill LED
+  IOP_LED_RED,
   
   // SPI1
   IOP_SPI_SCK,
@@ -71,7 +72,8 @@ enum {
 #ifdef _IOS_
 IO_PIN _ios[] = {
   { IO_PORT_C, 13 },    // LED
-
+  {IO_PORT_B, 0},       // LED-RED 
+  
   // SPI
   { IO_PORT_A, 5 },    // SCK
   { IO_PORT_A, 6 },    // MISO
