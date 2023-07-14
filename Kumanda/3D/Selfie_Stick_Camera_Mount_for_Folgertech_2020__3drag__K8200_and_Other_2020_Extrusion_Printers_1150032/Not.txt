@@ -1,0 +1,11 @@
+Summary
+I found a broken selfie stick laying around the house. The only think not broken was the camera holder. So I made a mount for my home built 2020 printer. I run the Android IP Camera app and I can watch my printer from anywhere on the network.
+
+You will need these additional parts:
+
+1/4-20 x 3/4" hex head bolt (standard tripod threads)
+M4 x 30mm SHCS
+M4 nut
+2 small screws (I used a couple from an old 30mm fan that was laying around)
+8mm tubing x 165mm (6.5")
+Tripod camera/phone mount. There are lots of them on Thingiverse
