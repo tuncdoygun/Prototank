@@ -14,6 +14,8 @@
 
 #define NSAMPLES        50
 
+#define DEBUGss
+
 uint8_t data[3] = {'B', 'T', 0};
 int count, j_mod_count;
 
@@ -133,13 +135,11 @@ void Task_Joystick(void)
 {
   int x, y, resultx, resulty;
   static int totalx , totaly, n;
-  
-  //uint8_t data_x[3] = {'X', 0, 0};
-  //uint8_t data_y[3] = {'Y', 0, 0};
+
   uint8_t data[6] = {'X', 'Y', 0, 0, 0, 0};
   
-  y = IADC_Convert(JOY_CH_YON);
-  x = IADC_Convert(JOY_CH_HIZ);
+  y = IADC_Convert(JOY_CH_YON); // 10-bit 
+  x = IADC_Convert(JOY_CH_HIZ); // 10-bit
  
   totalx += x;
   totaly += y;
@@ -148,28 +148,20 @@ void Task_Joystick(void)
     n = 0;
     
     resultx = totalx / NSAMPLES;
-    //data_x[1] = (resultx >> 8) & 0x0F; // resultx_high
-    //data_x[2] = resultx & 0xFF;        // resultx_low
-    
     resulty = totaly / NSAMPLES;
-    //data_y[1] = (resulty >> 8) & 0x0F; // resulty_high
-    //data_y[2] = resulty & 0xFF;
     
-    
-    data[2] = (resultx >> 8) & 0x0F;
+    data[2] = (resultx >> 8) & 0x0F; // resultlarý gonderilecek veriye cevirme.
     data[3] = resultx & 0xFF; 
     data[4] = (resulty >> 8) & 0x0F;
     data[5] = resulty & 0xFF;
+    
+#ifdef DEBUG
     printf("x1=%x x2=%x y1=%x y2=%x x=%4d y=%4d\n\r", data[2], data[3], data[4], data[5], resultx, resulty);
-    //////////////////////////////////////////////////
+#endif
+    
     nrf24_send(data);
     while(nrf24_isSending());
-    //////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////
-    /*nrf24_send(data_y);
-    while(nrf24_isSending());    */
-    //////////////////////////////////////////////////
+    
     nrf24_powerDown();
     DelayMs(10);
     
