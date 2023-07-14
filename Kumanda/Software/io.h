@@ -97,9 +97,9 @@ IO_PIN _ios[] = {
   
   {IO_PORT_A, 4}, // Joystick BUTTON
   
-  {IO_PORT_B, 3}, // BTN_UP
-  {IO_PORT_B, 4}, // BTN_DOWN
-  {IO_PORT_B, 6}, // BTN_RIGHT
+  {IO_PORT_B, 6}, // BTN_UP
+  {IO_PORT_B, 3}, // BTN_DOWN
+  {IO_PORT_B, 4}, // BTN_RIGHT
   {IO_PORT_B, 5}, // BTN_LEFT
 };
 
