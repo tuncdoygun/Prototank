@@ -140,6 +140,7 @@ void Task_NRF(void) {
   if(nrf24_dataReady()){
    nrf24_getData(data_array);
    //printf("%c %c %x %x %x %x\n", data_array[0], data_array[1], data_array[2], data_array[3], data_array[4], data_array[5]);
+   printf("%c %c %c\n", data_array[0], data_array[1], data_array[2]);
   }
 }
 
@@ -152,9 +153,9 @@ void Task_DC(void){
     datay = (data_array[4] << 8) | data_array[5];
     datay = map(datay, 0, 3800, 0, 2000); 
     
-    if(datax >= 1030 && datax <= 2050) 
+    if(datax >= 1100 && datax <= 2200) 
       sag_motor.flag = HIGH;
-    else if (datax >= 0 && datax <= 930)
+    else if (datax >= 0 && datax <= 1000)
       sol_motor.flag = HIGH;
     
 #ifdef DEBUG
@@ -162,33 +163,29 @@ void Task_DC(void){
     //printf("datax = %4d datay = %4d \n", datax, datay); 
 #endif 
     
-    if(datay >= 1050 || datax >= 1030 || datax <= 930){ // joystick sabit bolge disi. 
+    if(datay >= 1100 || datax >= 1100 || datax <= 1000){ // joystick sabit bolge disi. 
       if(sag_motor.flag){
-        // joystick x eksenindeki datax 550-1000 arasindaysa,yani saga cevrildiyse,sag motor hizi dusecek.
-        //sag_motor.duty = (datay - datax ) * g_PWMPeriod / 4095;
-        //sag_motor.duty += 4500;
-        
-        if(datay <= 1050) // y ekseni degeri sabit bolgedeyse,joystick sadece X degerinde hareket ediyorsa saga/sola donmek icin
+        /*
+        if(datay <= 1100) // y ekseni degeri sabit bolgedeyse,joystick sadece X degerinde hareket ediyorsa saga/sola donmek icin
           datay = 800;   // deger yetmiyor.O sebepten 800 e sabitlenmeli.
+        */
         
+        datay = 2100;
         sol_motor.duty = datay * g_PWMPeriod / 4095; 
         sag_motor.duty = 0;  
         sag_motor.flag = LOW;
       } else if(sol_motor.flag) {
-        // joystick y eksenindeki datay 0-400 arasindaysa,yani sola cevrildiyse,sol motor hizi dusecek.
-        //sag_motor.duty = datay * g_PWMPeriod / 4095;
-        //sol_motor.duty = (datay - (1000 - datax)) * g_PWMPeriod / 4095; // 1000'den cikarma sebebi x ekseninde sola dogru gittikce deger azaliyor(400'den 0'a dogru.)
-        //sol_motor.duty += 4500;      
-                                                           // x ekseni degeri 400 iken datay'den 600 cikarilmali ki sag ve sol motor yavaslamalari ayni olsun.
-        
-        if(datay <= 1050) // y ekseni degeri sabit bolgedeyse,joystick sadece X degerinde hareket ediyorsa saga/sola donmek icin
+        /*
+        if(datay <= 1100) // y ekseni degeri sabit bolgedeyse,joystick sadece X degerinde hareket ediyorsa saga/sola donmek icin
           datay = 800;   // deger yetmiyor.O sebepten 800 e sabitlenmeli.
+        */
         
+        datay = 2100;
         sag_motor.duty = datay * g_PWMPeriod / 4095;
         sol_motor.duty = 0;
         sol_motor.flag = LOW;
       } else {
-        // joystick x ekseni 430-530 arasindaysa,yani orta noktadaysa.Motorlar y ekseni degerlerine gore 
+        // joystick x ekseni 1000-1100 arasindaysa,yani orta noktadaysa.Motorlar y ekseni degerlerine gore 
         // ya tamamen duracak ya da esit hizlarla hizlanip/yavaslayacak.
         sag_motor.duty = sol_motor.duty = datay * g_PWMPeriod / 4095;
       }      
@@ -290,7 +287,7 @@ void Task_Servo(void){
       PWM_Duty(servo_duty_yatay, TIM_SERVO_D);
     
 #ifdef DEBUG
-      printf("BUTTON RIGHT servo_duty_yatay = %d\n", servo_duty_yatay);
+      printf("BUTTON LEFT servo_duty_yatay = %d\n", servo_duty_yatay);
 #endif
     }
   } else if(data_array[0] == 'B' && data_array[1] == 'T' && data_array[2] == 'L') {
@@ -299,7 +296,7 @@ void Task_Servo(void){
       PWM_Duty(servo_duty_yatay, TIM_SERVO_D);
     
 #ifdef DEBUG
-      printf("BUTTON LEFT servo_duty_yatay = %d\n", servo_duty_yatay);
+      printf("BUTTON RIGHT servo_duty_yatay = %d\n", servo_duty_yatay);
 #endif
     }
   }  
@@ -345,7 +342,7 @@ int main()
   nrf24_tx_address(tx_address);
   nrf24_rx_address(rx_address);
   
-  //test_motors(TIM_SERVO_Y, YATAY_MIN, YATAY_MAX, 20);
+  //test_motors(TIM_DC_2, 0, 20000, 100);
   //test_motors(TIM_SERVO_D, DIKEY_MIN, DIKEY_MAX, 20);
 
   //printRadioSettings();
