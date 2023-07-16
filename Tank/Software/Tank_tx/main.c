@@ -33,8 +33,13 @@ typedef struct {
   int pwm_timer;
 }MOTOR;
 
+enum direction {
+  FORWARD,
+  BACKWARD,
+};
+
 uint8_t data_array[6];
-int datax, datay;
+int datax, datay, direction;
 int servo_duty_dikey = DIKEY_ORTA;
 int servo_duty_yatay = YATAY_ORTA;
 
@@ -149,6 +154,22 @@ void Task_NRF(void) {
   }
 }
 
+void set_motor_direction(int direction)
+{
+  if(direction == FORWARD) {
+    IO_Write(IOP_IN1, 1);
+    IO_Write(IOP_IN2, 0); 
+    IO_Write(IOP_IN3, 0);
+    IO_Write(IOP_IN4, 1);
+  } else if(direction == BACKWARD) {
+    IO_Write(IOP_IN1, 0);
+    IO_Write(IOP_IN2, 1); 
+    IO_Write(IOP_IN3, 1);
+    IO_Write(IOP_IN4, 0);
+  }
+  
+}
+
 void Task_DC(void){ 
   if(data_array[0] == 'X' && data_array[1] == 'Y') {
     
@@ -165,21 +186,36 @@ void Task_DC(void){
     //printf("datax = %4d datay = %4d \n", datax, datay); 
 #endif 
     
-    if(datay >= 2200 || datax >= 2200 || datax <= 1800){ // joystick sabit bolge disi.
+    if(datay <= 1800){ 
+      set_motor_direction(BACKWARD);
+      direction = BACKWARD;
+    } else{ // joystick sabit bolgede olsa dahi yonu ileri olsun.
+      set_motor_direction(FORWARD);
+      direction = FORWARD;
+    }
+    
+    if(datay >= 2200 || datay <= 1800 || datax >= 2200 || datax <= 1800){ // joystick sabit bolge disi.
       if(sag_motor.flag){
+        IO_Write(IOP_IN1, 0);
+        IO_Write(IOP_IN3, 1);
+        
         datay = 4200;
-        sol_motor.duty = datay * g_PWMPeriod / 4095; // saga donecekse sol motorlar tamamen durup sag motorlar son hizda hareket ediyor.
-        sag_motor.duty = 0;  
+        sol_motor.duty = sag_motor.duty = datay * g_PWMPeriod / 4095; // saga donecekse sol motor da tam tersi yone donuyor;  
         sag_motor.flag = LOW;
       } else if(sol_motor.flag) {
+        IO_Write(IOP_IN2, 1);
+        IO_Write(IOP_IN4, 0);
+        
         datay = 4200;
-        sag_motor.duty = datay * g_PWMPeriod / 4095; // saga donecekse sol motorlar tamamen durup sag motorlar son hizda hareket ediyor.
-        sol_motor.duty = 0;
+        sag_motor.duty = sol_motor.duty = datay * g_PWMPeriod / 4095; // sola donecekse sag motor da tam tersi yone donuyor
         sol_motor.flag = LOW;
       } else { 
         // joystick x ekseni 1800-2200 arasindaysa,yani orta noktadaysa.Motorlar y ekseni degerlerine gore 
         // ya tamamen duracak ya da esit hizlarla hizlanip/yavaslayacak.
-        sag_motor.duty = sol_motor.duty = datay * g_PWMPeriod / 4095;
+        if (direction == FORWARD)
+          sag_motor.duty = sol_motor.duty = datay * g_PWMPeriod / 4095;
+        else if (direction == BACKWARD) // geri gidecekse joystick asagi indikce hizi artsin.
+          sag_motor.duty = sol_motor.duty = (4200 - datay) * g_PWMPeriod / 4095;
       }      
     } else { // joystick sabitken(sabit bölgedeyken) durmasi icin.
       sag_motor.duty = 0;
