@@ -16,14 +16,16 @@
 #define LOW  0
 
 #define DIKEY_MIN 1800
+#define DIKEY_ORTA 2350
 #define DIKEY_MAX 2500
 #define YATAY_MIN 1500
+#define YATAY_ORTA 2300
 #define YATAY_MAX 3300
 
 #define TIM_DC_1 TIM4_CH_1
 #define TIM_DC_2 TIM4_CH_2
-#define TIM_SERVO_Y TIM2_CH_4 
-#define TIM_SERVO_D TIM2_CH_3
+#define TIM_SERVO_Y TIM2_CH_3 
+#define TIM_SERVO_D TIM2_CH_4
 
 typedef struct {
   int duty;
@@ -33,8 +35,8 @@ typedef struct {
 
 uint8_t data_array[6];
 int datax, datay;
-int servo_duty_dikey = DIKEY_MIN;
-int servo_duty_yatay = YATAY_MIN;
+int servo_duty_dikey = DIKEY_ORTA;
+int servo_duty_yatay = YATAY_ORTA;
 
 MOTOR sag_motor = {0, LOW, TIM_DC_1};
 MOTOR sol_motor = {0, LOW, TIM_DC_2};
@@ -139,53 +141,43 @@ void clear_buffer(void) {
 void Task_NRF(void) {
   if(nrf24_dataReady()){
    nrf24_getData(data_array);
+   
+#ifdef DEBUG   
    //printf("%c %c %x %x %x %x\n", data_array[0], data_array[1], data_array[2], data_array[3], data_array[4], data_array[5]);
-   printf("%c %c %c\n", data_array[0], data_array[1], data_array[2]);
+   //printf("%c %c %c\n", data_array[0], data_array[1], data_array[2]);
+#endif
   }
 }
 
 void Task_DC(void){ 
-  if(data_array[0] == 'X' && data_array[1] == 'Y') { 
-    // joystick X bolgesi sadece saga/sola donerken motor hizlarini azaltmak icin kullanilir.
-    datax = (data_array[2] << 8) | data_array[3];
-    datax = map(datax, 0, 3800, 0, 2000);
-
-    datay = (data_array[4] << 8) | data_array[5];
-    datay = map(datay, 0, 3800, 0, 2000); 
+  if(data_array[0] == 'X' && data_array[1] == 'Y') {
     
-    if(datax >= 1100 && datax <= 2200) 
+    datax = (data_array[2] << 8) | data_array[3];
+    datay = (data_array[4] << 8) | data_array[5];
+    
+    if(datax >= 2200 && datax <= 4200) // joystick saga kisimda
       sag_motor.flag = HIGH;
-    else if (datax >= 0 && datax <= 1000)
+    else if (datax >= 0 && datax <= 1800) // joystick sol kisimda
       sol_motor.flag = HIGH;
     
 #ifdef DEBUG
-    //printf("datax = %4d datay = %4d SAG_FLAG = %4s SOL_FLAG = %4s \n", datax, datay, sag_motor.flag ? "HIGH" : "LOW", sol_motor.flag ? "HIGH" : "LOW"); 
+    printf("datax = %4d datay = %4d SAG_FLAG = %4s SOL_FLAG = %4s \n", datax, datay, sag_motor.flag ? "HIGH" : "LOW", sol_motor.flag ? "HIGH" : "LOW"); 
     //printf("datax = %4d datay = %4d \n", datax, datay); 
 #endif 
     
-    if(datay >= 1100 || datax >= 1100 || datax <= 1000){ // joystick sabit bolge disi. 
+    if(datay >= 2200 || datax >= 2200 || datax <= 1800){ // joystick sabit bolge disi.
       if(sag_motor.flag){
-        /*
-        if(datay <= 1100) // y ekseni degeri sabit bolgedeyse,joystick sadece X degerinde hareket ediyorsa saga/sola donmek icin
-          datay = 800;   // deger yetmiyor.O sebepten 800 e sabitlenmeli.
-        */
-        
-        datay = 2100;
-        sol_motor.duty = datay * g_PWMPeriod / 4095; 
+        datay = 4200;
+        sol_motor.duty = datay * g_PWMPeriod / 4095; // saga donecekse sol motorlar tamamen durup sag motorlar son hizda hareket ediyor.
         sag_motor.duty = 0;  
         sag_motor.flag = LOW;
       } else if(sol_motor.flag) {
-        /*
-        if(datay <= 1100) // y ekseni degeri sabit bolgedeyse,joystick sadece X degerinde hareket ediyorsa saga/sola donmek icin
-          datay = 800;   // deger yetmiyor.O sebepten 800 e sabitlenmeli.
-        */
-        
-        datay = 2100;
-        sag_motor.duty = datay * g_PWMPeriod / 4095;
+        datay = 4200;
+        sag_motor.duty = datay * g_PWMPeriod / 4095; // saga donecekse sol motorlar tamamen durup sag motorlar son hizda hareket ediyor.
         sol_motor.duty = 0;
         sol_motor.flag = LOW;
-      } else {
-        // joystick x ekseni 1000-1100 arasindaysa,yani orta noktadaysa.Motorlar y ekseni degerlerine gore 
+      } else { 
+        // joystick x ekseni 1800-2200 arasindaysa,yani orta noktadaysa.Motorlar y ekseni degerlerine gore 
         // ya tamamen duracak ya da esit hizlarla hizlanip/yavaslayacak.
         sag_motor.duty = sol_motor.duty = datay * g_PWMPeriod / 4095;
       }      
@@ -204,67 +196,11 @@ void Task_DC(void){
   }
 }
 
-void Task_DC__(void){
-  if(data_array[0] == 'X') { 
-    // joystick X bolgesi sadece saga/sola donerken motor hizlarini azaltmak icin kullanilir.
-    datax = (data_array[1] << 8) | data_array[2];
-    datax = map(datax, 0, 4000, 0, 1000);
-     
-    if(datax >= 600 && datax <= 1000) // sag motor hizi ayni oranda azalacak.
-      sag_motor.flag = HIGH;
-    else if (datax >= 0 && datax <= 400) // sol motor hizi ayni oranda azalacak.
-      sol_motor.flag = HIGH;
-
-#ifdef DEBUG
-    printf("\ndatax = %4d SAG_FLAG = %4s SOL_FLAG = %4s ", datax, sag_motor.flag ? "HIGH" : "LOW", sol_motor.flag ? "HIGH" : "LOW");
-#endif   
-  }
-    
-  if(data_array[0] == 'Y') { // HIZ
-    datay = (data_array[1] << 8) | data_array[2];
-    datay = map(datay, 0, 4000, 0, 700);
-      
-#ifdef DEBUG
-    printf("datay = %4d ", datay);
-#endif   
-      
-    if(datay >= 550 || datax >= 600 || datax <= 400){ // joystick sabit bolge disi. 
-      if(sag_motor.flag){
-      // joystick x eksenindeki datax 550-1000 arasindaysa,yani saga cevrildiyse,sag motor hizi dusecek.
-      sag_motor.duty = (datay - datax ) * g_PWMPeriod / 4095;
-      //sag_motor.duty += 4500;
-      sol_motor.duty = datay * g_PWMPeriod / 4095; 
-          
-      sag_motor.flag = LOW;
-      } else if(sol_motor.flag) {
-      // joystick y eksenindeki datay 0-400 arasindaysa,yani sola cevrildiyse,sol motor hizi dusecek.
-      sag_motor.duty = datay * g_PWMPeriod / 4095;
-      sol_motor.duty = (datay - (1000 - datax)) * g_PWMPeriod / 4095; // 1000'den cikarma sebebi x ekseninde sola dogru gittikce deger azaliyor(400'den 0'a dogru.)
-      //sol_motor.duty += 4500;                                                                 // x ekseni degeri 400 iken datay'den 600 cikarilmali ki sag ve sol motor yavaslamalari ayni olsun.
-         
-      sol_motor.flag = LOW;
-      } else {
-      // joystick x ekseni 400-550 arasindaysa,yani orta noktadaysa.Motorlar ya tamamen duracak ya da esit hizlarla hizlanip/yavaslayacak.
-      sag_motor.duty = sol_motor.duty = datay * g_PWMPeriod / 4095;
-      }
-        
-#ifdef DEBUG
-    printf("SA_DUTY = %4d SO_DUTY = %4d", sag_motor.duty, sol_motor.duty);
-#endif           
-      PWM_Duty(sag_motor.duty, sag_motor.pwm_timer);
-      //PWM_Duty(sol_motor.duty, sol_motor.pwm_timer);
-    } else { // joystick sabitken durmasi icin.
-      PWM_Duty(0, sag_motor.pwm_timer); 
-      PWM_Duty(0, sol_motor.pwm_timer);        
-    }
-  }
-}
-
-void Task_Servo(void){
+void Task_Servo(void){ // her bir bolgenin adým sayisi farkli.sebebi fiziksel zorlanmalar olabilir
   if(data_array[0] == 'B' && data_array[1] == 'T' && data_array[2] == 'U') {
     if(servo_duty_dikey < DIKEY_MAX){
-      servo_duty_dikey += 20;
-      PWM_Duty(servo_duty_dikey, TIM_SERVO_Y); 
+      servo_duty_dikey += 5;
+      PWM_Duty(servo_duty_dikey, TIM_SERVO_D); 
     
 #ifdef DEBUG
       printf("BUTTON UP servo_duty_dikey = %d\n", servo_duty_dikey);
@@ -273,7 +209,7 @@ void Task_Servo(void){
   } else if(data_array[0] == 'B' && data_array[1] == 'T' && data_array[2] == 'D') {
     if(servo_duty_dikey > DIKEY_MIN) {
       servo_duty_dikey -= 20;
-      PWM_Duty(servo_duty_dikey, TIM_SERVO_Y); 
+      PWM_Duty(servo_duty_dikey, TIM_SERVO_D); 
       
 #ifdef DEBUG
       printf("BUTTON DOWN servo_duty_dikey = %d\n", servo_duty_dikey);
@@ -284,19 +220,19 @@ void Task_Servo(void){
   if(data_array[0] == 'B' && data_array[1] == 'T' && data_array[2] == 'R') {
     if(servo_duty_yatay < YATAY_MAX){
       servo_duty_yatay += 20;
-      PWM_Duty(servo_duty_yatay, TIM_SERVO_D);
+      PWM_Duty(servo_duty_yatay, TIM_SERVO_Y);
     
 #ifdef DEBUG
-      printf("BUTTON LEFT servo_duty_yatay = %d\n", servo_duty_yatay);
+      printf("BUTTON RIGHT servo_duty_yatay = %d\n", servo_duty_yatay);
 #endif
     }
   } else if(data_array[0] == 'B' && data_array[1] == 'T' && data_array[2] == 'L') {
     if(servo_duty_yatay > YATAY_MIN) {    
-      servo_duty_yatay -= 20;
-      PWM_Duty(servo_duty_yatay, TIM_SERVO_D);
+      servo_duty_yatay -= 5;
+      PWM_Duty(servo_duty_yatay, TIM_SERVO_Y);
     
 #ifdef DEBUG
-      printf("BUTTON RIGHT servo_duty_yatay = %d\n", servo_duty_yatay);
+      printf("BUTTON LEFT servo_duty_yatay = %d\n", servo_duty_yatay);
 #endif
     }
   }  
@@ -342,7 +278,7 @@ int main()
   nrf24_tx_address(tx_address);
   nrf24_rx_address(rx_address);
   
-  //test_motors(TIM_DC_2, 0, 20000, 100);
+  //test_motors(TIM_DC_2, 16000, 36000, 1000);
   //test_motors(TIM_SERVO_D, DIKEY_MIN, DIKEY_MAX, 20);
 
   //printRadioSettings();
