@@ -173,7 +173,9 @@ void Task_Joystick(void)
 void Task_Button(void)
 { 
   if (g_Buttons[BTN_UP] == 1){ // basiliyken surekli gonderiyor.
+#ifdef DEBUG
     printf("BTN_UP = HIGH\n");
+#endif
     
     data[2] = 'U';
     nrf24_send(data);
@@ -181,7 +183,9 @@ void Task_Button(void)
   
     data[2] = 0;
   } else if (g_Buttons[BTN_UP] == 2) { // butondan el cekildiginde 10 tane durdurma gonderip birakiyor.
+#ifdef DEBUG
     printf("BTN_UP = LOW\n");
+#endif
     
     /*count = 0;
     data[2] = 'A'; 
@@ -197,7 +201,9 @@ void Task_Button(void)
   }
 
   if (g_Buttons[BTN_DOWN] == 1){
+#ifdef DEBUG
     printf("BTN_DOWN = HIGH\n");
+#endif
     
     data[2] = 'D';
     nrf24_send(data);
@@ -205,7 +211,9 @@ void Task_Button(void)
   
     data[2] = 0;
   } else if (g_Buttons[BTN_DOWN] == 2){
+#ifdef DEBUG
     printf("BTN_DOWN = LOW\n");
+#endif
 
     /*count = 0;
     data[2] = 'B'; 
@@ -220,16 +228,20 @@ void Task_Button(void)
   }
   
   if (g_Buttons[BTN_RIGHT] == 1){
+#ifdef DEBUG
     printf("BTN_RIGHT = HIGH\n");
- 
+#endif
+    
     data[2] = 'R';
     nrf24_send(data);
     while(nrf24_isSending()); 
   
     data[2] = 0;
   } else if (g_Buttons[BTN_RIGHT] == 2){
+#ifdef DEBUG    
     printf("BTN_RIGHT = LOW\n");
-
+#endif
+    
     /*count = 10;
     data[2] = 'C'; 
     while(count--){
@@ -243,7 +255,9 @@ void Task_Button(void)
   }
   
   if (g_Buttons[BTN_LEFT] == 1){
+#ifdef DEBUG
     printf("BTN_LEFT = HIGH\n");
+#endif
     
     data[2] = 'L';
     nrf24_send(data);
@@ -251,8 +265,10 @@ void Task_Button(void)
   
     data[2] = 0;
   } else if (g_Buttons[BTN_LEFT] == 2){
+#ifdef DEBUG
     printf("BTN_LEFT = LOW\n");
-
+#endif
+    
     /*count = 10;
     data[2] = 'E'; 
     while(count--){
@@ -267,7 +283,10 @@ void Task_Button(void)
   
 #ifdef BTN_LONG_PRESS
   if (g_ButtonsL[BTN_JOY]){
+#ifdef DEBUG
     printf("BTN_JOY\n");
+#endif
+    
     ++j_mod_count;
     
     if(j_mod_count % 2){
