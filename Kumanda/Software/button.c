@@ -41,7 +41,8 @@ static void BTN_Scan(int btIdx)
       } else if (_bts[btIdx].cState == _bts[btIdx].pState){ // buton býrakýldýðý zaman da iþlem yapmasý için.
         g_Buttons[btIdx] = 2;   // semaphore
 #ifdef BTN_LONG_PRESS
-       _bts[btIdx].lState = 0; // pasif state inde lState 0 olmasi lazim ki asagida birdaha long press kosuluna girebilsin.
+        _bts[btIdx].acc = 0; // butona normal kisa basip biraktiktan sonra sifirlanmali.yoksa asagidaki kosulda acc surekli toplaniyor.
+        _bts[btIdx].lState = 0; // pasif state inde lState 0 olmasi lazim ki asagida birdaha long press kosuluna girebilsin.
 #endif 
       }     
     }

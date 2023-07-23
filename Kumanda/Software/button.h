@@ -1,7 +1,7 @@
 #ifndef _BUTTON_H
 #define _BUTTON_H
 
-#define BT_LP_TIME      250 // bu tick boyunca aktif kalýrsa.1ms ticktimer olduðundan 0.5 sn basýlý tutulmasý
+#define BT_LP_TIME      1000 // bu tick boyunca aktif kalýrsa.1ms ticktimer olduðundan 1 sn basýlý tutulmasý
 #define BTN_LONG_PRESS
 
 typedef struct {
