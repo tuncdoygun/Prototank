@@ -271,6 +271,17 @@ void Task_Servo(void){ // her bir bolgenin adým sayisi farkli.sebebi fiziksel zo
       printf("BUTTON LEFT servo_duty_yatay = %d\n", servo_duty_yatay);
 #endif
     }
+  }
+
+  if(data_array[0] == 'B' && data_array[1] == 'T' && data_array[2] == 'W') {
+#ifdef DEBUG
+    printf("Kamera orta konum\n");
+#endif
+    servo_duty_yatay = YATAY_ORTA;
+    servo_duty_dikey = DIKEY_ORTA;
+    
+    PWM_Duty(servo_duty_yatay, TIM_SERVO_Y);
+    PWM_Duty(servo_duty_dikey, TIM_SERVO_D);
   }  
 }
 
