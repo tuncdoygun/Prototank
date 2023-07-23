@@ -6,6 +6,8 @@
 #include "io.h"
 #include "timer.h"
 
+unsigned int double_click_flag;
+
 TIM_TypeDef     *TimTab[] = {
   TIM1, TIM2, TIM3, TIM4
 };
@@ -24,6 +26,11 @@ IRQn_Type TimIrqTab[] = {
   TIM4_IRQn,
 };
 
+/*
+  prescale : 16-bit prescale
+  period :   AutoReload'a yazilacak deger.
+  repeat :   sadece timer1 icin gecerli.Advanced timer icin.
+*/
 void Timer_Init(int tmNo, unsigned prescale, unsigned period,
                 unsigned repeat)
 {
@@ -61,7 +68,7 @@ void Timer_IntConfig(int tmNo, int priority)
 {
   // 1) Çevresel birim ayarlarý
   // a) False interrupt önlemi
-  TIM_ClearITPendingBit(TimTab[tmNo], TIM_IT_Update);
+  TIM_ClearITPendingBit(TimTab[tmNo], TIM_IT_Update); // reload tastigi zaman olusur.
   // b) Çevresel yakada kesme kaynaðýný aktive ediyoruz
   TIM_ITConfig(TimTab[tmNo], TIM_IT_Update, ENABLE);
   
@@ -74,73 +81,14 @@ void Timer_IntConfig(int tmNo, int priority)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// TIM2 CH3 kullanýlacak
-// freq: PWM frekansý
-// duty: PWM duty cycle % olarak
-int PWM_Init(int freq, int duty)
-{
-  //SystemCoreClock
-  uint32_t period, prescale;
-  
-  // 1) Çýkýþ kanalýnýn I/O ayarlarý
-  IO_Init(IOP_TIM2_CH3, IO_MODE_ALTERNATE);
-  
-  // 2) Timer ayarlarý
-  // PWM frekansý belirlenecek
-  // ftmr = fsysclk / CKD_DIVx
-  // ftov = fpwm = ftmr / (period * prescale)
-  // Tpwm = (period * prescale) / ftmr
-  period =  SystemCoreClock / freq;
-  if (period >= 65536) {
-    // düzeltilmeli !!!
-    prescale = period / 32768;
-    period = 32768;
-  }
-  else
-    prescale = 1;
-    
-  Timer_Init(TIMER_2, prescale, period, 1);
-  
-  // 3) PWM ayarlarý
-  // Output compare
-  TIM_OCInitTypeDef ocInit;
-  
-  ocInit.TIM_OCIdleState = TIM_OCIdleState_Reset;
-  ocInit.TIM_OCMode = TIM_OCMode_PWM1;
-  ocInit.TIM_OCPolarity = TIM_OCPolarity_High;
-  ocInit.TIM_OutputState = TIM_OutputState_Enable;
-  ocInit.TIM_Pulse = period * duty / 100;
-  
-  TIM_OC3Init(TIM2, &ocInit);
-  
-  // 4) Timer'ý çalýþtýrýyoruz
-  Timer_Start(TIMER_2, 1);
-  
-  return period;
-}
-
-void PWM_Duty(int duty)
-{
-  TIM_SetCompare3(TIM2, duty);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-volatile unsigned long g_T1Count, g_T2Count;
-
 void TIM1_UP_IRQHandler(void)
 {
-  if (TIM_GetITStatus(TIM1, TIM_IT_Update) == SET) {
-    ++g_T1Count;
-    
-    TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
-  }
 }
 
 void TIM2_IRQHandler(void)
 {
   if (TIM_GetITStatus(TIM2, TIM_IT_Update) == SET) {
-    ++g_T2Count;
+    double_click_flag = 1;
     
     TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
   }

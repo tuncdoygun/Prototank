@@ -9,7 +9,7 @@ enum {
 };
 
 
-extern volatile unsigned long g_T1Count, g_T2Count;
+extern unsigned int double_click_flag;
 
 void Timer_Init(int tmNo, unsigned prescale, unsigned period,
                 unsigned repeat);

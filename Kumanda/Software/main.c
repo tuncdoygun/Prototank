@@ -7,6 +7,7 @@
 #include "adc.h"
 #include "nRF24.h"
 #include "button.h"
+#include "timer.h"
 
 #define SYS_CLOCK_FREQ  72000000
 #define JOY_CH_HIZ        0
@@ -17,7 +18,12 @@
 #define DEBUGss
 
 uint8_t data[3] = {'B', 'T', 0};
-int count, j_mod_count;
+int count, j_mod_count, double_click_counter;
+
+enum {
+  TIMER_STOP,
+  TIMER_START
+};
 
 enum {
   NONE,
@@ -55,10 +61,23 @@ void init(void)
   nrf24_config(2, 6);
   DelayMs(10);  
   
+  // buton double click icin timer_2 baslangic
+  Timer_Init(TIMER_2, SYS_CLOCK_FREQ / 2000, 2000, 1); // son parametre(repetition counter) timer 2 icin gecerli degil. prescale 36000.CNT'ye 0,5 ms'de bir pulse gidecek.autoreload 2000:yani 0,5 ms'yi 2000 kere sayip kesme olusturacak. 0,5ms*2000 = 1 sn
+  Timer_IntConfig(TIMER_2, 3);
+  
   // ADC baslangic
   IADC_IoInit(IOP_JOY_VRX);
   IADC_IoInit(IOP_JOY_VRY);
   IADC_Init(1, ADC_CONT_MODE_ON, ADC_SCAN_MODE_OFF);
+}
+
+void send_data_with_count(uint8_t *data, int count, int interval_in_us) {
+  while(count--){
+    nrf24_send(data);
+    while(nrf24_isSending()); 
+    nrf24_powerDown();
+    DelayUs(interval_in_us);
+  }
 }
 
 void Task_LED(void)
@@ -98,38 +117,6 @@ void Task_LED(void)
     break;
   }  
 }
-
-/*
-void speedmeter(uint8_t color)
-{
-  if(color == GREEN_1){
-    IO_Write(IOP_LED_GREEN_1, 1);
-    IO_Write(IOP_LED_GREEN_2, 0);
-    IO_Write(IOP_LED_YELLOW, 0);
-    IO_Write(IOP_LED_RED, 0);
-  }else if(color == GREEN_2){
-    IO_Write(IOP_LED_GREEN_1, 1);
-    IO_Write(IOP_LED_GREEN_2, 1);
-    IO_Write(IOP_LED_YELLOW, 0);
-    IO_Write(IOP_LED_RED, 0);
-  }else if(color == YELLOW){
-    IO_Write(IOP_LED_GREEN_1, 1);
-    IO_Write(IOP_LED_GREEN_2, 1);
-    IO_Write(IOP_LED_YELLOW, 1);
-    IO_Write(IOP_LED_RED, 0);
-  }else if(color == RED){
-    IO_Write(IOP_LED_GREEN_1, 1);
-    IO_Write(IOP_LED_GREEN_2, 1);
-    IO_Write(IOP_LED_YELLOW, 1);
-    IO_Write(IOP_LED_RED, 1);
-  }else{
-    IO_Write(IOP_LED_GREEN_1, 0);
-    IO_Write(IOP_LED_GREEN_2, 0);
-    IO_Write(IOP_LED_YELLOW, 0);
-    IO_Write(IOP_LED_RED, 0);
-  }
-}
-*/
 
 void Task_Joystick(void)
 {
@@ -187,17 +174,14 @@ void Task_Button(void)
     printf("BTN_UP = LOW\n");
 #endif
     
-    /*count = 0;
+    /*
     data[2] = 'A'; 
-    while(count--){
-      nrf24_send(data);
-      while(nrf24_isSending()); 
-      nrf24_powerDown();
-      DelayUs(10);      
-    }*/
+    send_data_with_count(data, 10, 10);
+    */
     
     data[2] = 0;
-    g_Buttons[BTN_UP] = 0; 
+    g_Buttons[BTN_UP] = 0; // tanktaki kamerayi basili tutarak yonettigimden dolayi basili oldugunda surekli gonderilmeli,elimi biraktigimda daha gondermemeli.
+                           // o sebepten buton semaphore'u burada sifirlaniyor.
   }
 
   if (g_Buttons[BTN_DOWN] == 1){
@@ -215,14 +199,11 @@ void Task_Button(void)
     printf("BTN_DOWN = LOW\n");
 #endif
 
-    /*count = 0;
+    /*
     data[2] = 'B'; 
-    while(count--){
-      nrf24_send(data);
-      while(nrf24_isSending()); 
-      nrf24_powerDown();
-      DelayUs(10);      
-    }*/
+    send_data_with_count(data, 10, 10);
+    */
+    
     g_Buttons[BTN_DOWN] = 0; 
     data[2] = 0;
   }
@@ -242,14 +223,11 @@ void Task_Button(void)
     printf("BTN_RIGHT = LOW\n");
 #endif
     
-    /*count = 10;
+    /*
     data[2] = 'C'; 
-    while(count--){
-      nrf24_send(data);
-      while(nrf24_isSending()); 
-      nrf24_powerDown();
-      DelayUs(10);      
-    }*/
+    send_data_with_count(data, 10, 10);
+    */
+    
     g_Buttons[BTN_RIGHT] = 0; 
     data[2] = 0;
   }
@@ -269,16 +247,34 @@ void Task_Button(void)
     printf("BTN_LEFT = LOW\n");
 #endif
     
-    /*count = 10;
+    /*
     data[2] = 'E'; 
-    while(count--){
-      nrf24_send(data);
-      while(nrf24_isSending()); 
-      nrf24_powerDown();
-      DelayUs(10);      
-    }*/
+    send_data_with_count(data, 10, 10);     
+    }
+    */
+    
     g_Buttons[BTN_LEFT] = 0; 
     data[2] = 0;
+  }
+  
+  if (g_Buttons[BTN_JOY] == 1){ // tank kamerasinin joystick butonuna cift tiklandiginda orta konuma gelmesi gerek.
+#ifdef DEBUG
+    printf("BTN_JOY = HIGH\n");
+#endif
+    // double buton click'in timer'i butona basildiginde baslamali.butona uzun basma suresini 1sn yapip buton click'inin timer tasma suresini de 1sn yaptigim zaman
+    // ledler icin ilk uzun basistan sonra hemen ikinci basista cift tik aktif olmaz cunku cift click'in timer'i zaten dolmus olacak.o cakismayi
+    // engellemek icin timer burada baslamali.
+    
+    Timer_Start(TIMER_2, TIMER_START);
+    double_click_counter++;
+
+    if (double_click_counter == 2) {
+      data[2] = 'W';
+      send_data_with_count(data, 10, 10);
+      data[2] = 0;
+    }
+  
+    g_Buttons[BTN_JOY] = 0; 
   }
   
 #ifdef BTN_LONG_PRESS
@@ -290,24 +286,12 @@ void Task_Button(void)
     ++j_mod_count;
     
     if(j_mod_count % 2){
-      count = 10;
       data[2] = 'J';
-      while(count--){
-        nrf24_send(data);
-        while(nrf24_isSending()); 
-        nrf24_powerDown();
-        DelayUs(10);
-      }
+      send_data_with_count(data, 10, 10);
       data[2] = 0;
     } else {
-      count = 10;
       data[2] = 'M';
-      while(count--){
-        nrf24_send(data);
-        while(nrf24_isSending()); 
-        nrf24_powerDown();
-        DelayUs(10);
-      }
+      send_data_with_count(data, 10, 10);
       data[2] = 0;   
     }
     
@@ -315,6 +299,14 @@ void Task_Button(void)
   }
 #endif
 
+}
+
+void Task_JButton_IRQ_Timeout(void) {
+  if (double_click_flag == 1) {
+    double_click_counter = 0;
+    double_click_flag = 0; 
+    Timer_Start(TIMER_2, TIMER_STOP);
+  }
 }
 
 int main()
@@ -340,6 +332,7 @@ int main()
   {
     Task_LED();
     Task_Button();
+    Task_JButton_IRQ_Timeout();
     Task_Joystick();
   }
 }
